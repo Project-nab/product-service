@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
 
 @RestController
 public class ProductController {
@@ -48,7 +49,9 @@ public class ProductController {
                                     @RequestParam(value = "priceMin", required = false) Double priceMin,
                                     @RequestParam(value = "priceMax", required = false) Double priceMax,
                                     @RequestParam(value = "offset", defaultValue = "0") int offet,
-                                    @RequestParam(value = "limit", defaultValue = "10") int limit) {
+                                    @RequestParam(value = "limit", defaultValue = "10") int limit,
+                                    Principal principal) {
+        logger.info("Query with user name {}", principal.getName());
         Page<Product> products = productService.findProduct(categoryId, brandId, color, priceMin, priceMax, offet, limit);
         return new BaseResponse(HttpServletResponse.SC_OK, "Get product successful", products);
     }
