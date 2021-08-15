@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icomerce.shopping.product.entities.Brand;
 import com.icomerce.shopping.product.entities.Product;
 import com.icomerce.shopping.product.entities.ProductCatalogue;
+import com.icomerce.shopping.product.exception.NegativeProductQuantityException;
+import com.icomerce.shopping.product.exception.ProductNotFoundException;
 import com.icomerce.shopping.product.payload.query.ProductQuery;
 import com.icomerce.shopping.product.payload.request.ProductRequest;
 import com.icomerce.shopping.product.repositories.BrandRepo;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -81,5 +84,24 @@ public class ProductServiceImp implements ProductService {
         log.info("Find product by Id {}", productId);
         Optional<Product> productOptional = productRepo.findById(productId);
         return productOptional.orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public Product updateProductQuantity(String productCode, int quantity) throws ProductNotFoundException,
+            NegativeProductQuantityException {
+        if(quantity < 0) {
+            throw new NegativeProductQuantityException("Update negative quantity exception " + productCode);
+        }
+        Optional<Product> product = productRepo.findByCode(productCode);
+        if(product.isPresent()) {
+            int newQuantity = product.get().getQuantity() - quantity;
+            if(newQuantity < 0) {
+                throw new NegativeProductQuantityException("Product code have negative quantity " + productCode);
+            }
+            product.get().setQuantity(newQuantity);
+            return productRepo.save(product.get());
+        }
+        throw new ProductNotFoundException("Product code not found " + productCode);
     }
 }

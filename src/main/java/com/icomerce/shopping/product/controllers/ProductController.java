@@ -1,6 +1,8 @@
 package com.icomerce.shopping.product.controllers;
 
 import com.icomerce.shopping.product.entities.Product;
+import com.icomerce.shopping.product.exception.NegativeProductQuantityException;
+import com.icomerce.shopping.product.exception.ProductNotFoundException;
 import com.icomerce.shopping.product.payload.request.ProductRequest;
 import com.icomerce.shopping.product.payload.response.BaseResponse;
 import com.icomerce.shopping.product.services.ProductService;
@@ -66,6 +68,21 @@ public class ProductController {
         } else {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return new BaseResponse(HttpServletResponse.SC_BAD_REQUEST, "Invalid product id", product);
+        }
+    }
+
+    @RequestMapping(value = "/products/{productCode}", method = RequestMethod.PUT)
+    public BaseResponse updateProductQuantity(@PathVariable(value = "productCode") String productCode,
+                                              @RequestBody ProductRequest request) {
+        try {
+            Product product = productService.updateProductQuantity(productCode, request.getQuantity());
+            return new BaseResponse(HttpServletResponse.SC_OK, "Success", product);
+        } catch (ProductNotFoundException e) {
+            logger.error("Product code not found exception ", e);
+            return new BaseResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage(), null);
+        } catch (NegativeProductQuantityException e) {
+            logger.error("Negative product quantity exception ", e);
+            return new BaseResponse(HttpServletResponse.SC_BAD_REQUEST, e.getMessage(), null);
         }
     }
 }

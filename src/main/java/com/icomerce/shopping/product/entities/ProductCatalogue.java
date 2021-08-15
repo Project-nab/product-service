@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductCatalogue {
+public class ProductCatalogue implements Serializable {
     @Id
     @Column(name = "catalogue_code")
     private String code;

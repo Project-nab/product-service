@@ -1,6 +1,8 @@
 package com.icomerce.shopping.product.services.impl;
 
 import com.icomerce.shopping.product.entities.*;
+import com.icomerce.shopping.product.exception.NegativeProductQuantityException;
+import com.icomerce.shopping.product.exception.ProductNotFoundException;
 import com.icomerce.shopping.product.payload.request.ProductRequest;
 import com.icomerce.shopping.product.repositories.BrandRepo;
 import com.icomerce.shopping.product.repositories.ProductCatalogueRepo;
@@ -141,5 +143,23 @@ public class ProductServiceTest {
         assertEquals(50D, product.getPrice());
         assertEquals(100, product.getQuantity());
         assertEquals(Color.YELLOW, product.getColor());
+    }
+
+    @Test(expected = NegativeProductQuantityException.class)
+    public void whenUpdateProductQuantityGreater_thenThrowException() throws NegativeProductQuantityException,
+            ProductNotFoundException {
+        productService.updateProductQuantity("ADIDAS_TSHIRT_02", 10000);
+    }
+
+    @Test(expected = NegativeProductQuantityException.class)
+    public void whenUpdateNegativeQuantity_thenThrowException() throws NegativeProductQuantityException,
+            ProductNotFoundException {
+        productService.updateProductQuantity("ADIDAS_TSHIRT_02", -1);
+    }
+
+    @Test(expected = ProductNotFoundException.class)
+    public void whenUpdateInvalidProductCode_thenThrowException() throws NegativeProductQuantityException,
+            ProductNotFoundException {
+        productService.updateProductQuantity("WRONG_PRODUCT_CODE", 1);
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ import java.util.Set;
 @Data
 @Builder
 @AllArgsConstructor
-public class Product {
+public class Product implements Serializable {
     @Id
     @Column(name = "product_code")
     private String code;
