@@ -16,6 +16,8 @@ import com.icomerce.shopping.product.repositories.specification.ProductSpecifica
 import com.icomerce.shopping.product.services.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -71,7 +73,7 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    @Cacheable(value = "findProduct")
+    @CachePut(value = "findProduct")
     public Page<Product> findProduct(String category, String brand, String color, Double priceMin, Double priceMax, int offset, int limit) {
         ProductQuery productQuery = new ProductQuery(category, brand, color, priceMin, priceMax);
         Page<Product> pages = productRepo.findAll(productSpecification.build(productQuery), PageRequest.of(offset, limit));
@@ -88,6 +90,7 @@ public class ProductServiceImp implements ProductService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "findProductDetail", allEntries = true)
     public Product updateProductQuantity(String productCode, int quantity) throws ProductNotFoundException,
             NegativeProductQuantityException {
         if(quantity < 0) {
